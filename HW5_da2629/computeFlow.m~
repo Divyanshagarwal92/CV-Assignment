@@ -1,0 +1,45 @@
+function result = computeFlow(img1, img2, win_radius, template_radius, grid_MN)
+
+size1 = size(img1);
+
+grid_MN = size
+flow = [];
+f = figure();
+for i=1+template_radius:grid_MN(1):size1(1)-template_radius
+    for j=1+template_radius:grid_MN(2):size1(2)-template_radius        
+        template = img1(i-template_radius:i+template_radius, j-template_radius:j+template_radius);
+        min_r = i - win_radius;
+        max_r = i + win_radius;
+        min_c = j - win_radius;
+        max_c = j + win_radius;
+        if min_r < 1+template_radius
+            min_r = 1+template_radius;
+        end
+        if max_r > size(img2,1)-template_radius
+            max_r = size(img2,1)-template_radius;
+        end
+        if min_c < 1+template_radius
+            min_c = 1+template_radius;
+        end
+        if max_c > size(img2,2)-template_radius
+            max_c = size(img2,2)-template_radius;
+        end
+        min_val = sum(sum(template));
+        min_coord = [-1,-1];
+        for r=min_r:max_r
+            for c=min_c:max_c
+                new_window = img2(r-template_radius:r+template_radius, c-template_radius:c+template_radius);
+                value = sum( sum( abs(template-new_window)));
+                if value < min_val
+                    min_val = value;
+                    min_coord = [r,c];                  
+                end
+            end
+        end
+        flow = [ flow; i, j min_coord(1)-i, min_coord(2)-j];
+    end
+end
+imshow(img1); hold on;
+quiver(flow(:,2), flow(:,1), flow(:,4), flow(:,3));
+F = getframe(f);
+result = F.cdata;
